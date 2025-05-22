@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
 
         const currUser = users.find(usr => usr.username === username && usr.password === password);
         if (currUser) {
+            localStorage.setItem('user', JSON.stringify(currUser));
             setUser(currUser);
             setIsLoggedIn(true);
             return { success: true };
