@@ -10,13 +10,33 @@ export default function Register() {
     const { register } = useAuth();
     const nav = useNavigate();
 
-    const handleSubmit = async (formData) => {
-        if (formData.password != formData.confirmpassword) {
-            alert("Passwords must match");
-        } else {
-            const { success } = await register(formData);
-            success ? nav('/completeprofile') : alert("Please choose a different username");
+      const handleSubmit = async (formData) => {
+        const { username, password, confirmpassword } = formData;
+
+        if (!username || !password || !confirmpassword) {
+            alert("Please fill in all fields");
+            return;
         }
+
+        if (password !== confirmpassword) {
+            alert("Passwords must match");
+            return;
+        }
+
+       const result = await register({ username, password });
+
+        if (!result || typeof result.success === 'undefined') {
+            console.error("Register function returned:", result);
+            alert("An unexpected error occurred. Please try again.");
+            return;
+        }
+
+        if (result.success) {
+            nav('/completeprofile');
+        } else {
+            alert("Please choose a different username");
+        }
+
     };
     
     return (
@@ -43,8 +63,8 @@ export default function Register() {
                         placeholder: "Confirm Password"
                     }
                 ]}
-                handleSubmitData={(formData) => handleSubmit(formData)}
-                buttonText="Complete Registration"
+                 handleSubmitData={handleSubmit}
+                 buttonText="Complete Registration"
             />
         </>
     );

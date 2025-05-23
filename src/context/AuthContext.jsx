@@ -27,14 +27,45 @@ export function AuthProvider({ children }) {
         setIsLoggedIn(false);
     }
 
-    const register = async ({ username, password }) => {
-        const response = await fetch('http://localhost:3000/users');
-        const users = await response.json();
+  const register = async ({ username, password }) => {
+        try {
+            const response = await fetch('http://localhost:3000/users');
+            
+            if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
-        if (users.find(usr => usr.username === username)) {
+            const users = await response.json();
+
+            if (users.find(usr => usr.username === username)) {
             return { success: false };
+            }
+
+            const newUser = { username, password };
+
+            const postResponse = await fetch('http://localhost:3000/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newUser),
+            });
+
+            if (!postResponse.ok) {
+            throw new Error(`Failed to register: ${postResponse.status}`);
+            }
+
+            localStorage.setItem('user', JSON.stringify(newUser));
+            setUser(newUser);
+            setIsLoggedIn(true);
+
+            return { success: true };
+
+        } catch (error) {
+            console.error("Registration failed:", error);
+            return { success: false, error: error.message };
         }
-    }
+    };
+
+
 
     return (
         <AuthContext.Provider value={{ user, login, logout, register, isLoggedIn}}>
