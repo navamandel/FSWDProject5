@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import * as Yup from 'yup';
+import '../styles/form.css'; 
+
+
+const loginSchema = Yup.object().shape({
+  username: Yup.string().required('Username is required'),
+  password: Yup.string().required('Password is required'),
+});
 
 export default function Login() {
   const { login } = useAuth();
@@ -8,16 +16,21 @@ export default function Login() {
   const [error, setError] = useState('');
 
   const handleSubmit = async (formData) => {
-    const { success, message } = await login(formData);
-    if (success) {
-      nav('/home');
-    } else {
-      setError(message || "Incorrect username or password");
+    try {
+      await loginSchema.validate(formData);
+      const { success, message } = await login(formData);
+      if (success) {
+        nav('/home');
+      } else {
+        setError(message || 'Incorrect username or password');
+      }
+    } catch (validationError) {
+      setError(validationError.message);
     }
   };
 
   return (
-    <>
+    <div className="login-container">
       <h2>Login</h2>
       <form
         onSubmit={(e) => {
@@ -39,8 +52,8 @@ export default function Login() {
         </div>
         <button type="submit">Log In</button>
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error">{error}</p>}
       <button onClick={() => nav('/register')}>Register</button>
-    </>
+    </div>
   );
 }

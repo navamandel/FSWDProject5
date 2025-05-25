@@ -105,6 +105,14 @@
       "name": "matt",
       "email": "wuv@gmail.com",
       "phone": "0544445215"
+    },
+    {
+      "id": "d2c7",
+      "username": "kkk",
+      "password": "123123",
+      "name": "תפארת זוננברג",
+      "email": "tiffsonnenberg@gmail.com",
+      "phone": "0548259150"
     }
   ],
   "todos": [
@@ -1326,6 +1334,21 @@
     {
       "id": "17c0",
       "title": "hecoece",
+      "completed": false
+    },
+    {
+      "id": "fc5b",
+      "title": "clean",
+      "completed": true
+    },
+    {
+      "id": "6349",
+      "title": "back",
+      "completed": false
+    },
+    {
+      "id": "a400",
+      "title": "list",
       "completed": false
     }
   ]

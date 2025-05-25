@@ -1,6 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import * as Yup from 'yup';
+import '../styles/form.css'; 
+
+const profileSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(2, 'Name must be at least 2 characters')
+    .required('Full name is required'),
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  phone: Yup.string()
+    .matches(/^\+?\d{10,15}$/, 'Enter a valid phone number')
+    .required('Phone is required'),
+});
 
 export default function CompleteProfile() {
   const [formData, setFormData] = useState({
@@ -28,9 +42,11 @@ export default function CompleteProfile() {
       return;
     }
 
-    const updatedUser = { ...user, ...formData };
-
     try {
+      await profileSchema.validate(formData);
+
+      const updatedUser = { ...user, ...formData };
+
       const response = await fetch(`http://localhost:3000/users/${user.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -45,13 +61,12 @@ export default function CompleteProfile() {
 
       nav('/home');
     } catch (err) {
-      console.error(err);
-      alert('Could not complete profile. Please try again.');
+      alert(err.message);
     }
   };
 
   return (
-    <div>
+    <div className="login-container">
       <h2>Complete Your Profile</h2>
       <form onSubmit={handleSubmit}>
         <div>

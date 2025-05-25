@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "../styles/todo.css"; // Adjust the path if needed
 
 function Todos({ userId }) {
   const [todos, setTodos] = useState([]);
@@ -101,7 +102,7 @@ function Todos({ userId }) {
   };
 
   return (
-    <div>
+    <div className="todos-container">
       <h2>Todos for user {userId}</h2>
 
       <div>

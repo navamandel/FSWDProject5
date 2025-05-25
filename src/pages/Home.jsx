@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar'; // adjust path if needed
 
 function Home() {
   const navigate = useNavigate();
@@ -20,26 +21,18 @@ function Home() {
     navigate('/login');
   };
 
-  const handleNavigate = (path) => {
-    navigate(`/${path}`);
-  };
-
-  if (!user) return null; // While loading or redirecting
+  if (!user) return null;
 
   return (
     <div>
-      <h1>Welcome, {user.name}</h1>
+      <Navbar user={user} onLogout={handleLogout} />
 
-      <div style={{ marginBottom: '20px' }}>
-        <button onClick={() => setInfoVisible(!infoVisible)}>Info</button>
-        <button onClick={() => handleNavigate('todos')}>Todos</button>
-        <button onClick={() => handleNavigate('posts')}>Posts</button>
-        <button onClick={() => handleNavigate('albums')}>Albums</button>
-        <button onClick={handleLogout}>Logout</button>
+      <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+        <button onClick={() => setInfoVisible(!infoVisible)}>Toggle Info</button>
       </div>
 
       {infoVisible && (
-        <div style={{ border: '1px solid gray', padding: '10px', maxWidth: '400px' }}>
+        <div style={{ border: '1px solid gray', padding: '10px', maxWidth: '400px', margin: '0 auto' }}>
           <h3>User Info</h3>
           <p><strong>Username:</strong> {user.username}</p>
           <p><strong>Website (Password):</strong> {user.website}</p>
