@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import CompleteProfile from './pages/CompleteProfile';
+import Todos from './pages/Todos';
 
 
 function App() {
@@ -14,6 +15,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/home" element={<Home />} />
         <Route path='/completeprofile' element={<CompleteProfile />} />
+        <Route path='/todos' element={<Todos />} />
+        {/* Add more routes as needed */}
       </Routes>
     </Router>
   );

@@ -1,116 +1,162 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import './Todos.css';
+import React, { useState, useEffect } from "react";
 
-function Todos() {
+function Todos({ userId }) {
   const [todos, setTodos] = useState([]);
-  const [filteredTodos, setFilteredTodos] = useState([]);
-  const [sortBy, setSortBy] = useState('');
-  const [search, setSearch] = useState('');
-  const [newTodo, setNewTodo] = useState('');
-  const [userId, setUserId] = useState(null);
+  const [filter, setFilter] = useState({ sortBy: "id", search: "", status: "all" });
+  const [newTodoTitle, setNewTodoTitle] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  // Load todos from server based on userId
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) return;
-    setUserId(user.id);
+    if (!userId) return;
+    setLoading(true);
+    fetch(`http://localhost:3000/todos?userId=${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        setTodos(data);
+        setLoading(false);
+      })
+      .catch(e => {
+        setError("Error loading todos");
+        setLoading(false);
+      });
+  }, [userId]);
 
-    axios.get(`http://localhost:3000/todos?userId=${user.id}`).then(res => {
-      setTodos(res.data);
-      setFilteredTodos(res.data);
-    });
-  }, []);
-
-  // Search & sort
-  useEffect(() => {
-    let filtered = [...todos];
-
-    if (search.trim() !== '') {
-      const s = search.toLowerCase();
-      filtered = filtered.filter(todo =>
+  // Filter and sort todos according to criteria
+  const filteredTodos = todos
+    .filter(todo => {
+      if (filter.status === "done") return todo.completed === true;
+      if (filter.status === "notdone") return todo.completed === false;
+      return true; // all todos
+    })
+    .filter(todo => {
+      if (filter.search === "") return true;
+      const s = filter.search.toLowerCase();
+      return (
         todo.title.toLowerCase().includes(s) ||
-        todo.id.toString().includes(s) ||
-        (todo.completed ? 'done' : 'not done').includes(s)
+        todo.id.toString().includes(s)
       );
+    })
+    .sort((a, b) => {
+    // Sort incomplete before complete
+    if (a.completed !== b.completed) {
+      return a.completed ? 1 : -1; // a completed moves down
     }
 
-    if (sortBy === 'id') filtered.sort((a, b) => a.id - b.id);
-    else if (sortBy === 'title') filtered.sort((a, b) => a.title.localeCompare(b.title));
-    else if (sortBy === 'status') filtered.sort((a, b) => a.completed - b.completed);
+    // If both same completion status, sort by chosen field
+    if (filter.sortBy === "id") return a.id - b.id;
+    if (filter.sortBy === "title") return a.title.localeCompare(b.title);
+    if (filter.sortBy === "completed") return 0; // They are equal here anyway
 
-    setFilteredTodos(filtered);
-  }, [search, sortBy, todos]);
+    return 0;
+    });
 
-  const addTodo = () => {
-    if (!newTodo.trim()) return;
-    const todo = {
+
+  // Add new todo
+  const handleAddTodo = () => {
+    if (!newTodoTitle.trim()) return;
+    const newTodo = {
       userId,
-      title: newTodo,
+      title: newTodoTitle,
       completed: false,
     };
-    axios.post(`http://localhost:3000/todos`, todo).then(res => {
-      setTodos([...todos, res.data]);
-      setNewTodo('');
-    });
+    // POST new todo to server
+    fetch("http://localhost:3000/todos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newTodo),
+    })
+      .then(res => res.json())
+      .then(data => {
+        setTodos(prev => [...prev, data]);
+        setNewTodoTitle("");
+      })
+      .catch(() => alert("Error adding todo"));
   };
 
-  const updateTodo = (id, updatedFields) => {
-    axios.patch(`http://localhost:3000/todos/${id}`, updatedFields).then(res => {
-      setTodos(todos.map(t => (t.id === id ? res.data : t)));
-    });
+  // Toggle todo completion status
+  const toggleTodo = (id) => {
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+    fetch(`http://localhost:3000/todos/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed: !todo.completed }),
+    })
+      .then(res => res.json())
+      .then(updatedTodo => {
+        setTodos(prev => prev.map(t => t.id === id ? updatedTodo : t));
+      })
+      .catch(() => alert("Error updating todo"));
   };
 
+  // Delete a todo
   const deleteTodo = (id) => {
-    axios.delete(`http://localhost:3000/todos/${id}`).then(() => {
-      setTodos(todos.filter(t => t.id !== id));
-    });
+    fetch(`http://localhost:3000/todos/${id}`, { method: "DELETE" })
+      .then(() => {
+        setTodos(prev => prev.filter(t => t.id !== id));
+      })
+      .catch(() => alert("Error deleting todo"));
   };
 
   return (
-    <div className="todos-container">
-      <h2>Todos</h2>
+    <div>
+      <h2>Todos for user {userId}</h2>
 
-      <div className="add-todo">
-        <input
-          type="text"
-          placeholder="Add new todo"
-          value={newTodo}
-          onChange={(e) => setNewTodo(e.target.value)}
-        />
-        <button onClick={addTodo}>Add</button>
+      <div>
+        <label>
+          Sort by:
+          <select value={filter.sortBy} onChange={e => setFilter({...filter, sortBy: e.target.value})}>
+            <option value="id">ID</option>
+            <option value="title">Title</option>
+            <option value="completed">Status</option>
+          </select>
+        </label>
+
+        <label>
+          Search:
+          <input
+            type="text"
+            value={filter.search}
+            onChange={e => setFilter({...filter, search: e.target.value})}
+            placeholder="Search by id or title"
+          />
+        </label>
+
+        <label>
+          Status:
+          <select value={filter.status} onChange={e => setFilter({...filter, status: e.target.value})}>
+            <option value="all">All</option>
+            <option value="done">Done</option>
+            <option value="notdone">Not Done</option>
+          </select>
+        </label>
       </div>
 
-      <div className="todos-controls">
-        <label>Sort by: </label>
-        <select onChange={(e) => setSortBy(e.target.value)} value={sortBy}>
-          <option value="">--</option>
-          <option value="id">ID</option>
-          <option value="title">Title</option>
-          <option value="status">Status</option>
-        </select>
+      <div>
         <input
           type="text"
-          placeholder="Search by id/title/status"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          placeholder="New todo title"
+          value={newTodoTitle}
+          onChange={e => setNewTodoTitle(e.target.value)}
         />
+        <button onClick={handleAddTodo}>Add Todo</button>
       </div>
+
+      {loading && <p>Loading todos...</p>}
+      {error && <p style={{color: "red"}}>{error}</p>}
 
       <ul>
         {filteredTodos.map(todo => (
-          <li key={todo.id} className="todo-item">
-            <strong>{todo.id}</strong>
-            <input
-              type="text"
-              value={todo.title}
-              onChange={(e) => updateTodo(todo.id, { title: e.target.value })}
-            />
+          <li key={todo.id} style={{textDecoration: todo.completed ? "line-through" : "none"}}>
             <input
               type="checkbox"
               checked={todo.completed}
-              onChange={(e) => updateTodo(todo.id, { completed: e.target.checked })}
+              onChange={() => toggleTodo(todo.id)}
             />
-            <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+            {todo.id} - {todo.title}
+            <button onClick={() => deleteTodo(todo.id)} style={{marginLeft: "10px", color: "red"}}>Delete</button>
           </li>
         ))}
       </ul>
