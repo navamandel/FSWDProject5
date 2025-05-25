@@ -5,6 +5,8 @@ import '../styles/navbar.css';
 
 export default function Navbar({ user, onLogout }) {
   const navigate = useNavigate();
+  if (!user) return null; // or some loading indicator
+
 
   return (
     <div className="navbar">

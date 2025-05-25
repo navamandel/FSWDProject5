@@ -4,6 +4,7 @@ import Register from './pages/Register';
 import Home from './pages/Home';
 import CompleteProfile from './pages/CompleteProfile';
 import Todos from './pages/Todos';
+import Posts from './pages/Posts';
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path='/completeprofile' element={<CompleteProfile />} />
         <Route path='/todos' element={<Todos />} />
+        <Route path='/posts' element={<Posts />} />
         {/* Add more routes as needed */}
       </Routes>
     </Router>
