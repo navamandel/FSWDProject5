@@ -1,79 +1,87 @@
-import { useState, useContext, createContext } from 'react'
+import { useState, useContext, createContext } from 'react';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
+  // Initialize user from localStorage to persist login on refresh
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
-    const [user, setUser] = useState(null);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!user);
 
-    const login = async ({ username, password }) => {
-        const response = await fetch('http://localhost:3000/users');
-        const users = await response.json();
+  const login = async ({ username, password }) => {
+    const response = await fetch('http://localhost:3000/users');
+    const users = await response.json();
 
-        const currUser = users.find(usr => usr.username === username && usr.password === password);
-        if (currUser) {
-            localStorage.setItem('user', JSON.stringify(currUser));
-            setUser(currUser);
-            setIsLoggedIn(true);
-            return { success: true };
-        } else {
-            return { success: false };
-        }
-    };
-
-    const logout = () => {
-        setUser(null);
-        setIsLoggedIn(false);
+    const currUser = users.find(
+      (usr) => usr.username === username && usr.password === password
+    );
+    if (currUser) {
+      localStorage.setItem('user', JSON.stringify(currUser));
+      setUser(currUser);
+      setIsLoggedIn(true);
+      return { success: true };
+    } else {
+      return { success: false };
     }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsLoggedIn(false);
+  };
 
   const register = async ({ username, password }) => {
-        try {
-            const response = await fetch('http://localhost:3000/users');
-            
-            if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-            }
+    try {
+      const response = await fetch('http://localhost:3000/users');
 
-            const users = await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-            if (users.find(usr => usr.username === username)) {
-            return { success: false };
-            }
+      const users = await response.json();
 
-            const newUser = { username, password };
+      if (users.find((usr) => usr.username === username)) {
+        return { success: false, message: 'Username already exists' };
+      }
 
-            const postResponse = await fetch('http://localhost:3000/users', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newUser),
-            });
+      const newUser = { username, password };
 
-            if (!postResponse.ok) {
-            throw new Error(`Failed to register: ${postResponse.status}`);
-            }
+      // Post new user and get created user with ID
+      const postResponse = await fetch('http://localhost:3000/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUser),
+      });
 
-            localStorage.setItem('user', JSON.stringify(newUser));
-            setUser(newUser);
-            setIsLoggedIn(true);
+      if (!postResponse.ok) {
+        throw new Error(`Failed to register: ${postResponse.status}`);
+      }
 
-            return { success: true };
+      const createdUser = await postResponse.json();
 
-        } catch (error) {
-            console.error("Registration failed:", error);
-            return { success: false, error: error.message };
-        }
-    };
+      // Save full user (with id) to localStorage and state
+      localStorage.setItem('user', JSON.stringify(createdUser));
+      setUser(createdUser);
+      setIsLoggedIn(true);
 
+      return { success: true };
+    } catch (error) {
+      console.error('Registration failed:', error);
+      return { success: false, error: error.message };
+    }
+  };
 
-
-    return (
-        <AuthContext.Provider value={{ user, login, logout, register, isLoggedIn}}>
-            { children }
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={{ user, setUser, login, logout, register, isLoggedIn }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-    return useContext(AuthContext);
+  return useContext(AuthContext);
 }
