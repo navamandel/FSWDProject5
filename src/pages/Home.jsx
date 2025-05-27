@@ -47,7 +47,9 @@ function Home() {
         <div style={{ border: '1px solid gray', padding: '10px', maxWidth: '400px', margin: '0 auto' }}>
           <h3>User Info</h3>
           <p><strong>Username:</strong> {user.username}</p>
-          <p><strong>Website (Password):</strong> {user.password}</p>
+          <p><strong>Name:</strong> {user.name}</p>
+          <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>Phone:</strong> {user.phone}</p>
         </div>
       )}
     </div>
