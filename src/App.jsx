@@ -22,7 +22,7 @@ function App() {
         <Route path='/posts' element={<Posts />} />
         <Route path='/albums'element={<Albums />} />
         <Route path='/albums/:id' element={<Album />} />
-        {/* Add more routes as needed */}
+        <Route path='*' element={<h1>Error 404: Page Not Found</h1>} />
       </Routes>
     </Router>
   );
