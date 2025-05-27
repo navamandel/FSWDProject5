@@ -101,6 +101,14 @@
       "name": "Tifferet Sonnenberg",
       "email": "tiffsonnenberg@gmail.com",
       "phone": "0548259150"
+    },
+    {
+      "id": "64e1",
+      "username": "tiff",
+      "password": "111111",
+      "name": "תפארת זוננברג",
+      "email": "tiffsonnenberg@gmail.com",
+      "phone": "0548259150"
     }
   ],
   "todos": [
@@ -307,6 +315,18 @@
       "userId": "6db4",
       "title": "verv",
       "completed": true
+    },
+    {
+      "id": "3751",
+      "userId": "64e1",
+      "title": "clean",
+      "completed": false
+    },
+    {
+      "id": "cb86",
+      "userId": "64e1",
+      "title": "mk",
+      "completed": true
     }
   ],
   "posts": [
@@ -345,6 +365,12 @@
       "userId": "6db4",
       "title": "ok",
       "body": "w"
+    },
+    {
+      "id": "ce7a",
+      "userId": "64e1",
+      "title": "hello",
+      "body": "hi"
     }
   ],
   "comments": [
@@ -595,6 +621,14 @@
       "name": "nikki",
       "email": "tiffsonnenberg@gmail.com",
       "body": "ok"
+    },
+    {
+      "id": "f8aa",
+      "postId": "ce7a",
+      "userId": "64e1",
+      "name": "tiff",
+      "email": "tiffsonnenberg@gmail.com",
+      "body": "lol"
     }
   ]
 }
