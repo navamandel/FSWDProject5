@@ -1,0 +1,98 @@
+.search-and-add {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #f4f7fb;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-and-add textarea {
+    flex-grow: 1;
+    resize: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: inherit;
+    height: 36px;
+    min-height: 36px;
+}
+
+.search-and-add textarea:focus {
+    outline: none;
+    border-color: rgba(65, 126, 239, 0.9);
+    box-shadow: 0 0 0 2px rgba(65, 126, 239, 0.2);
+}
+
+.search-and-add svg {
+    color: rgba(65, 126, 239, 0.9);
+    font-size: 20px;
+}
+
+.search-and-add button {
+    padding: 8px 16px;
+    background-color: rgba(65, 126, 239, 0.9);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.search-and-add button:hover {
+    background-color: rgb(27, 78, 173);
+}
+
+
+.album-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.icons {
+    width: 100px;
+    height: auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.album-items {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+}
+
+.album-link{
+    text-decoration: none;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    color: rgba(65, 126, 239, 0.9);
+}
+
+.album-link:hover {
+    color: rgb(27, 78, 173);
+    transform: scale(1.1);
+}
+
+.delete-button {
+    padding: 8px 16px;
+    background-color: rgb(245, 72, 72);
+    color: white;
+    border: none;
+    align-items: flex-end;
+    justify-items: flex-end;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
