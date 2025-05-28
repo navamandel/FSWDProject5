@@ -5,7 +5,6 @@ import '../styles/posts.css';
 
 export default function Posts() {
   const storedUser = JSON.parse(localStorage.getItem('user'));
-  const userId = storedUser?.id;
   const navigate = useNavigate();
   const [user, setUser] = useState(null); //  Add user state
   const [posts, setPosts] = useState([]);
@@ -22,32 +21,42 @@ export default function Posts() {
   const [editPostBody, setEditPostBody] = useState('');
 
   useEffect(() => {
-    if (!userId) {
-      alert('User not logged in');
-      return;
-    }
-    fetchPosts();
-  }, [userId]);
-
-  useEffect(() => {
-    filterPosts();
-  }, [searchTerm, searchBy, posts]);
-
-  useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (!storedUser) {
       navigate('/login');
-    } else {
-      setUser(storedUser);
+      return;
     }
-  }, [navigate]);
+
+    setUser(storedUser);
+    fetchPosts(storedUser.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+  if (!searchTerm.trim()) {
+    setFilteredPosts(posts);
+  } else {
+    const filtered = posts.filter(post => {
+      if (searchBy === 'title') {
+        return post.title.toLowerCase().includes(searchTerm.toLowerCase());
+      } else if (searchBy === 'id') {
+        return post.id.toString().includes(searchTerm);
+      }
+      return true;
+    });
+    setFilteredPosts(filtered);
+  }
+}, [posts, searchTerm, searchBy]);
+
 
   const handleLogout = () => {
     localStorage.removeItem('user');
     navigate('/login');
   };
 
-  async function fetchPosts() {
+
+
+  async function fetchPosts(userId) {
     try {
       const url = `http://localhost:3000/posts?userId=${userId}`;
       const response = await fetch(url);
@@ -59,19 +68,7 @@ export default function Posts() {
     }
   }
 
-  function filterPosts() {
-    if (!searchTerm) {
-      setFilteredPosts(posts);
-      return;
-    }
-    const term = searchTerm.toLowerCase();
-    const filtered = posts.filter(post => {
-      if (searchBy === 'id') return String(post.id) === term;
-      if (searchBy === 'title') return post.title.toLowerCase().includes(term);
-      return true;
-    });
-    setFilteredPosts(filtered);
-  }
+
 
   async function handleAddPost(e) {
     e.preventDefault();
@@ -80,7 +77,7 @@ export default function Posts() {
       return;
     }
     const newPost = {
-      userId,
+      userId: user?.id,
       title: newPostTitle,
       body: newPostBody,
     };
@@ -146,7 +143,7 @@ export default function Posts() {
     }
     const comment = {
       postId: selectedPost.id,
-      userId: user?.id,   // **Add userId to comment**
+      userId: user?.id,   
       name: user?.username || 'User',
       email: user?.email || 'user@example.com',
       body: newCommentBody,
@@ -196,7 +193,7 @@ export default function Posts() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId,
+          userId: user?.id,
           title: editPostTitle,
           body: editPostBody,
           id: editPostId,
@@ -214,7 +211,7 @@ export default function Posts() {
 
   return (
     <div className="posts-container">
-      <Navbar user={user} onLogout={handleLogout} /> {/* Navbar here */}
+      <Navbar user={user} onLogout={handleLogout} /> 
         
       <h2>User Posts</h2>
 
