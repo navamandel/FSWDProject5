@@ -12,21 +12,34 @@ export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(!!user);
 
   const login = async ({ username, password }) => {
-    const response = await fetch('http://localhost:3000/users');
-    const users = await response.json();
+      try {
+        const response = await fetch(
+          `http://localhost:3000/users?username=${username}&password=${password}`
+        );
 
-    const currUser = users.find(
-      (usr) => usr.username === username && usr.password === password
-    );
-    if (currUser) {
-      localStorage.setItem('user', JSON.stringify(currUser));
-      setUser(currUser);
-      setIsLoggedIn(true);
-      return { success: true };
-    } else {
-      return { success: false };
-    }
-  };
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const users = await response.json();
+
+        if (users.length > 0) {
+          const user = users[0];
+          localStorage.setItem('user', JSON.stringify(user));
+          setUser(user);
+          setIsLoggedIn(true);
+          return { success: true };
+        } else {
+          return { success: false, message: 'Incorrect username or password' };
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        return { success: false, message: 'Server error during login' };
+      }
+    };
+
+
+
 
   const logout = () => {
     localStorage.removeItem('user');

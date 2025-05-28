@@ -15,19 +15,20 @@ export default function Login() {
   const nav = useNavigate();
   const [error, setError] = useState('');
 
-  const handleSubmit = async (formData) => {
-    try {
-      await loginSchema.validate(formData);
-      const { success, message } = await login(formData);
-      if (success) {
-        nav('/home');
-      } else {
-        setError(message || 'Incorrect username or password');
+    const handleSubmit = async (formData) => {
+      try {
+        await loginSchema.validate(formData);
+        const { success, message } = await login(formData);
+        if (success) {
+          nav('/home');
+        } else {
+          setError(message); // Will now show 'Incorrect username or password'
+        }
+      } catch (validationError) {
+        setError(validationError.message);
       }
-    } catch (validationError) {
-      setError(validationError.message);
-    }
-  };
+    };
+
 
   return (
     <div className="login-container">
